@@ -10,18 +10,28 @@ Author: MediSync Engineering Team
 
 import os
 import json
+import sys
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel
 
-# LangChain imports
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.schema import Document
+# Fix Windows console encoding for emoji support
+if sys.platform == 'win32': 
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+
+# Load environment variables from .env file
+from dotenv import load_dotenv
+load_dotenv()
+
+# LangChain imports (updated for langchain 0.3.x)
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_core.documents import Document
 
 # LOCAL GPU Embeddings (HuggingFace on CUDA)
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.embeddings import HuggingFaceEmbeddings
 
 # Cohere LLM imports
-from langchain_cohere import ChatCohere
+from langchain_community.chat_models import ChatCohere
 
 # ChromaDB imports
 from langchain_community.vectorstores import Chroma
