@@ -30,8 +30,8 @@ from langchain_core.documents import Document
 # LOCAL GPU Embeddings (HuggingFace on CUDA)
 from langchain_community.embeddings import HuggingFaceEmbeddings
 
-# Cohere LLM imports
-from langchain_community.chat_models import ChatCohere
+# Cohere LLM imports (use new langchain_cohere package)
+from langchain_cohere import ChatCohere
 
 # ChromaDB imports
 from langchain_community.vectorstores import Chroma
@@ -46,7 +46,7 @@ class Config:
     
     # ============ COHERE LLM (API) ============
     COHERE_API_KEY: str = os.getenv("COHERE_API_KEY", "")
-    COHERE_MODEL: str = "command-r"
+    COHERE_MODEL: str = os.getenv("COHERE_MODEL", "command-r7b-12-2024")
     
     # ============ LOCAL GPU EMBEDDINGS ============
     EMBEDDING_MODEL: str = os.getenv(
@@ -62,7 +62,7 @@ class Config:
     
     # ============ RETRIEVAL ============
     TOP_K_RETRIEVAL: int = 5
-    RETRIEVAL_SCORE_THRESHOLD: float = 0.7
+    RETRIEVAL_SCORE_THRESHOLD: float = 0.2
     
     # ============ CHUNKING ============
     CHUNK_SIZE: int = 512
@@ -237,15 +237,62 @@ def query_with_structured_json(query: str, vectorstore: Chroma, llm: ChatCohere,
     
     prompt = build_citation_prompt(query, retrieved_docs)
     response = llm.invoke(prompt)
-    
-    try:
-        content = response.content if hasattr(response, 'content') else str(response)
-        parsed = json.loads(content)
-        parsed["query"] = query
-        parsed["retrieved_documents_count"] = len(retrieved_docs)
-        return parsed
-    except:
+
+    def _parse_json_from_text(text: str) -> Optional[Dict[str, Any]]:
+        import re
+
+        if not text:
+            return None
+
+        # Normalize to string
+        s = text if isinstance(text, str) else str(text)
+
+        # Fast path: try direct load
+        try:
+            return json.loads(s)
+        except Exception:
+            pass
+
+        # Remove common Markdown code fences
+        s = re.sub(r'```(?:json)?', '', s, flags=re.IGNORECASE).strip()
+
+        # Try to find the first balanced JSON object using brace counting
+        start = s.find('{')
+        if start == -1:
+            return None
+
+        depth = 0
+        for i in range(start, len(s)):
+            if s[i] == '{':
+                depth += 1
+            elif s[i] == '}':
+                depth -= 1
+                if depth == 0:
+                    candidate = s[start:i+1]
+                    try:
+                        return json.loads(candidate)
+                    except Exception:
+                        # continue searching for another balanced segment
+                        pass
+
+        # Fallback: try regex extraction of a JSON block
+        match = re.search(r'\{[\s\S]*\}', s)
+        if match:
+            try:
+                return json.loads(match.group())
+            except Exception:
+                return None
+
+        return None
+
+    content = response.content if hasattr(response, 'content') else str(response)
+    parsed = _parse_json_from_text(content)
+    if parsed is None:
         return {"error": "JSON parse failed", "diagnosis": [], "medications": [], "allergies": []}
+
+    parsed["query"] = query
+    parsed["retrieved_documents_count"] = len(retrieved_docs)
+    return parsed
 
 
 # ============================================================================
