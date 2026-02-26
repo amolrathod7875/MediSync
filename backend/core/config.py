@@ -30,15 +30,14 @@ class Settings(BaseSettings):
     UPLOAD_DIR: str = "data/uploads"
     EMBEDDINGS_DIR: str = "data/embeddings"
     
-    # LLM Settings
-    LLM_PROVIDER: str = "openai"  # openai, anthropic, or local
-    OPENAI_API_KEY: str = ""
-    OPENAI_MODEL: str = "gpt-4o"
-    ANTHROPIC_API_KEY: str = ""
-    ANTHROPIC_MODEL: str = "claude-3-5-sonnet-20241022"
+    # LLM Settings - COHERE (API-based generation)
+    LLM_PROVIDER: str = "cohere"
+    COHERE_API_KEY: str = ""
+    COHERE_MODEL: str = "command-r"
     
-    # Embedding Settings
+    # Local GPU Embedding Settings
     EMBEDDING_MODEL: str = "sentence-transformers/all-MiniLM-L6-v2"
+    EMBEDDING_DEVICE: str = "cuda"  # Use 'cuda' for GPU, 'cpu' as fallback
     EMBEDDING_BATCH_SIZE: int = 32
     CHUNK_SIZE: int = 512
     CHUNK_OVERLAP: int = 100
