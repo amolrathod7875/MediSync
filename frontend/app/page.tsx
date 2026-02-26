@@ -1,186 +1,307 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { FileText, Upload, Activity, ClipboardList, Plus, ArrowRight, CheckCircle } from 'lucide-react'
+import { useState } from 'react'
+import { 
+  Heart, 
+  Thermometer, 
+  Wind, 
+  Activity, 
+  UploadCloud, 
+  Sparkles, 
+  Copy, 
+  Download,
+  FileText,
+  User,
+  Calendar,
+  Stethoscope
+} from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { cn } from '@/lib/utils'
 
-interface Document {
-  document_id: string
-  filename: string
-  status: string
-  created_at: string
+// Types
+interface Patient {
+  name: string
+  age: number
+  mrn: string
+  chiefComplaint: string
+  admissionDate: string
+  attendingPhysician: string
 }
 
-interface Summary {
-  summary_id: string
-  summary_type: string
-  status: string
-  generated_at: string
+interface Vital {
+  label: string
+  value: string
+  unit: string
+  status: 'normal' | 'elevated' | 'critical'
+  icon: React.ComponentType<{ className?: string }>
 }
 
-export default function Dashboard() {
-  const [documents, setDocuments] = useState<Document[]>([])
-  const [summaries, setSummaries] = useState<Summary[]>([])
-  const [loading, setLoading] = useState(true)
+// Dummy Patient Data
+const patient: Patient = {
+  name: 'John Doe',
+  age: 65,
+  mrn: 'MRN-2024-001234',
+  chiefComplaint: 'Chest Pain',
+  admissionDate: new Date().toLocaleDateString('en-US', { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  }),
+  attendingPhysician: 'Dr. Sarah Chen'
+}
 
-  useEffect(() => {
-    // Fetch initial data
-    fetchDocuments()
-    fetchSummaries()
-  }, [])
+// Dummy Vitals Data
+const vitals: Vital[] = [
+  { label: 'Heart Rate', value: '78', unit: 'bpm', status: 'normal', icon: Heart },
+  { label: 'Blood Pressure', value: '142/88', unit: 'mmHg', status: 'elevated', icon: Activity },
+  { label: 'Temperature', value: '98.6', unit: '°F', status: 'normal', icon: Thermometer },
+  { label: 'SpO2', value: '97', unit: '%', status: 'normal', icon: Wind },
+  { label: 'Respiratory Rate', value: '18', unit: '/min', status: 'normal', icon: Wind }
+]
 
-  const fetchDocuments = async () => {
-    try {
-      const response = await fetch('http://localhost:8000/api/v1/documents/')
-      const data = await response.json()
-      setDocuments(data.documents || [])
-    } catch (error) {
-      console.error('Error fetching documents:', error)
-    } finally {
-      setLoading(false)
-    }
+// Placeholder Summary Content
+const placeholderSummary = `## Discharge Summary
+
+**Patient:** ${patient.name} (${patient.mrn})  
+**Admission Date:** ${patient.admissionDate}  
+**Discharge Date:** [Pending]
+
+### Chief Complaint
+${patient.chiefComplaint}, onset 3 days prior to admission. Patient presented with substernal chest pressure radiating to left arm, associated with diaphoresis and shortness of breath.
+
+### History of Present Illness
+65-year-old male with history of hypertension, hyperlipidemia, and type 2 diabetes presents with acute chest pain. Symptoms began approximately 72 hours ago with progressive severity. Cardiac enzymes elevated on admission.
+
+### Hospital Course
+- Admitted to cardiac telemetry unit
+- Serial ECGs showing no acute ST changes
+- Troponin peak at 2.5 ng/mL
+- Started on aspirin, clopidogrel, heparin drip
+- Cardiology consult placed
+- Echocardiogram shows EF 55% with no wall motion abnormalities
+
+### Assessment
+Acute chest pain, likely musculoskeletal vs. cardiac origin. Rule out MI in progress.
+
+### Plan
+- Continue cardiac monitoring
+- Repeat troponins in 6 hours
+- outpatient follow-up with cardiology in 1 week
+- Stress test if symptoms persist
+
+---
+
+[Generated content will appear here]`
+
+// Status color mapping
+const statusColors = {
+  normal: 'text-emerald-600 bg-emerald-50 border-emerald-200',
+  elevated: 'text-amber-600 bg-amber-50 border-amber-200',
+  critical: 'text-rose-600 bg-rose-50 border-rose-200'
+}
+
+const statusDotColors = {
+  normal: 'bg-emerald-500',
+  elevated: 'bg-amber-500',
+  critical: 'bg-rose-500'
+}
+
+export default function HospitalDashboard() {
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [generatedSummary, setGeneratedSummary] = useState('')
+
+  const handleGenerate = () => {
+    setIsGenerating(true)
+    // Simulate generation delay
+    setTimeout(() => {
+      setGeneratedSummary(placeholderSummary)
+      setIsGenerating(false)
+    }, 2000)
   }
 
-  const fetchSummaries = async () => {
-    try {
-      const response = await fetch('http://localhost:8000/api/v1/summary/')
-      const data = await response.json()
-      setSummaries(data.summaries || [])
-    } catch (error) {
-      console.error('Error fetching summaries:', error)
-    }
+  const handleCopy = () => {
+    navigator.clipboard.writeText(generatedSummary || placeholderSummary)
   }
-
-  const stats = [
-    {
-      name: 'Total Documents',
-      value: documents.length,
-      icon: FileText,
-      color: 'bg-blue-500'
-    },
-    {
-      name: 'Pending Processing',
-      value: documents.filter(d => d.status === 'created').length,
-      icon: Activity,
-      color: 'bg-yellow-500'
-    },
-    {
-      name: 'Generated Summaries',
-      value: summaries.length,
-      icon: ClipboardList,
-      color: 'bg-green-500'
-    },
-    {
-      name: 'Signed Off',
-      value: summaries.filter(s => s.status === 'signed').length,
-      icon: CheckCircle,
-      color: 'bg-purple-500'
-    }
-  ]
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-r from-primary-600 to-primary-800 rounded-lg shadow-lg p-8 mb-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-white mb-2">
-              Welcome to MediSync
+    <div className="h-screen flex flex-col overflow-hidden bg-slate-50">
+      {/* Main Content - Split Pane */}
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+        
+        {/* LEFT PANEL - 30% width on desktop */}
+        <div className="w-full lg:w-[30%] flex flex-col gap-4 p-4 overflow-y-auto border-r border-slate-200 bg-slate-50">
+          
+          {/* Patient Info Card */}
+          <Card className="bg-white border-slate-200 shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                <User className="w-5 h-5 text-teal-600" />
+                Patient Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div>
+                <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Name</p>
+                <p className="text-sm font-medium text-slate-900">{patient.name}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Age</p>
+                  <p className="text-sm text-slate-900">{patient.age} years</p>
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">MRN</p>
+                  <p className="text-sm text-slate-900 font-mono">{patient.mrn}</p>
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Chief Complaint</p>
+                <p className="text-sm text-slate-900">{patient.chiefComplaint}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <p className="text-xs font-medium text-slate-500 uppercase tracking-wide flex items-center gap-1">
+                    <Calendar className="w-3 h-3" /> Admission
+                  </p>
+                  <p className="text-sm text-slate-900">{patient.admissionDate}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-slate-500 uppercase tracking-wide flex items-center gap-1">
+                    <Stethoscope className="w-3 h-3" /> Physician
+                  </p>
+                  <p className="text-sm text-slate-900">{patient.attendingPhysician}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Vitals Grid */}
+          <Card className="bg-white border-slate-200 shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                <Activity className="w-5 h-5 text-teal-600" />
+                Current Vitals
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-3">
+                {vitals.map((vital) => (
+                  <div
+                    key={vital.label}
+                    className={cn(
+                      'p-3 rounded-lg border transition-colors',
+                      statusColors[vital.status]
+                    )}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <vital.icon className="w-4 h-4" />
+                      <span className={cn('w-2 h-2 rounded-full', statusDotColors[vital.status])} />
+                    </div>
+                    <p className="text-xs text-slate-500 mb-1">{vital.label}</p>
+                    <p className="text-lg font-semibold text-slate-900">
+                      {vital.value}
+                      <span className="text-xs font-normal text-slate-500 ml-1">{vital.unit}</span>
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Upload Medical Records Zone */}
+          <Card className="bg-white border-slate-200 shadow-sm">
+            <CardContent className="pt-6">
+              <div className="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center hover:border-teal-400 hover:bg-teal-50 transition-colors cursor-pointer group">
+                <UploadCloud className="w-10 h-10 mx-auto text-slate-400 group-hover:text-teal-600 mb-3 transition-colors" />
+                <p className="text-sm font-medium text-slate-700">Drag & drop medical records</p>
+                <p className="text-xs text-slate-500 mt-1">or click to browse</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* RIGHT PANEL - 70% width on desktop */}
+        <div className="w-full lg:w-[70%] flex flex-col p-4 overflow-hidden">
+          
+          {/* Copilot Header */}
+          <div className="mb-4">
+            <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+              <Sparkles className="w-6 h-6 text-teal-600" />
+              AI Discharge Summary Copilot
             </h1>
-            <p className="text-primary-100">
-              AI-powered clinical documentation with clickable citations
+            <p className="text-sm text-slate-500 mt-1">
+              Generate clinical documentation from patient records
             </p>
           </div>
-          <a
-            href="/upload"
-            className="flex items-center px-6 py-3 bg-white text-primary-600 rounded-lg font-medium hover:bg-primary-50 transition-colors"
-          >
-            <Upload className="w-5 h-5 mr-2" />
-            Upload Documents
-          </a>
-        </div>
-      </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {stats.map((stat) => (
-          <div key={stat.name} className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <div className={`${stat.color} p-3 rounded-lg`}>
-                <stat.icon className="w-6 h-6 text-white" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">{stat.name}</p>
-                <p className="text-2xl font-semibold text-gray-900">{stat.value}</p>
-              </div>
-            </div>
+          {/* Generate Button */}
+          <div className="mb-4">
+            <Button
+              onClick={handleGenerate}
+              disabled={isGenerating}
+              className="h-11 px-6 bg-teal-600 hover:bg-teal-700 text-white rounded-md transition-colors"
+            >
+              <Sparkles className="w-5 h-5 mr-2" />
+              {isGenerating ? 'Generating...' : 'Generate Discharge Summary'}
+            </Button>
           </div>
-        ))}
-      </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Generate Discharge Summary
-          </h2>
-          <p className="text-gray-600 mb-4">
-            Create a comprehensive discharge summary from uploaded patient documents.
-          </p>
-          <a
-            href="/generate?type=discharge"
-            className="inline-flex items-center text-primary-600 hover:text-primary-700"
-          >
-            Start Generation <ArrowRight className="w-4 h-4 ml-1" />
-          </a>
-        </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Create Handoff Note
-          </h2>
-          <p className="text-gray-600 mb-4">
-            Generate a structured shift handoff note for the next care team.
-          </p>
-          <a
-            href="/generate?type=handoff"
-            className="inline-flex items-center text-primary-600 hover:text-primary-700"
-          >
-            Start Generation <ArrowRight className="w-4 h-4 ml-1" />
-          </a>
-        </div>
-      </div>
-
-      {/* Recent Documents */}
-      <div className="bg-white rounded-lg shadow">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">Recent Documents</h2>
-        </div>
-        <div className="divide-y divide-gray-200">
-          {loading ? (
-            <div className="p-6 text-center text-gray-500">Loading...</div>
-          ) : documents.length === 0 ? (
-            <div className="p-6 text-center text-gray-500">
-              No documents yet. <a href="/upload" className="text-primary-600 hover:underline">Upload your first document</a>
-            </div>
-          ) : (
-            documents.slice(0, 5).map((doc) => (
-              <div key={doc.document_id} className="px-6 py-4 flex items-center justify-between">
-                <div className="flex items-center">
-                  <FileText className="w-5 h-5 text-gray-400 mr-3" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">{doc.filename}</p>
-                    <p className="text-sm text-gray-500">{new Date(doc.created_at).toLocaleString()}</p>
+          {/* Summary Output Area */}
+          <Card className="flex-1 bg-white border-slate-200 shadow-sm overflow-hidden flex flex-col">
+            <CardHeader className="pb-3 border-b border-slate-200 flex-shrink-0">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-teal-600" />
+                  Generated Summary
+                </CardTitle>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCopy}
+                    className="h-8 border-slate-200 text-slate-600 hover:bg-slate-50"
+                  >
+                    <Copy className="w-4 h-4 mr-1" />
+                    Copy
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 border-slate-200 text-slate-600 hover:bg-slate-50"
+                  >
+                    <Download className="w-4 h-4 mr-1" />
+                    PDF
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 border-slate-200 text-slate-600 hover:bg-slate-50"
+                  >
+                    <Download className="w-4 h-4 mr-1" />
+                    MD
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <ScrollArea className="flex-1 p-6">
+              {generatedSummary ? (
+                <div className="prose prose-sm max-w-none">
+                  <pre className="whitespace-pre-wrap font-sans text-sm text-slate-700 bg-transparent p-0">
+                    {generatedSummary}
+                  </pre>
+                </div>
+              ) : (
+                <div className="h-full flex items-center justify-center text-slate-400">
+                  <div className="text-center">
+                    <FileText className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                    <p className="text-sm">Click "Generate Discharge Summary" to create clinical documentation</p>
                   </div>
                 </div>
-                <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                  doc.status === 'processed' ? 'bg-green-100 text-green-800' :
-                  doc.status === 'chunked' ? 'bg-blue-100 text-blue-800' :
-                  'bg-yellow-100 text-yellow-800'
-                }`}>
-                  {doc.status}
-                </span>
-              </div>
-            ))
-          )}
+              )}
+            </ScrollArea>
+          </Card>
         </div>
       </div>
     </div>
