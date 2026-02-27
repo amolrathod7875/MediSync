@@ -11,6 +11,7 @@ from datetime import datetime
 
 from backend.core.config import settings
 from backend.services.ingestion import process_file
+from backend.api.documents import documents_db
 
 router = APIRouter()
 
@@ -56,6 +57,14 @@ async def upload_file(file: UploadFile = File(...)) -> Dict[str, Any]:
         
         # Process file (extract text, anonymize, etc.)
         processed_doc = await process_file(file_path, file.filename, file_id)
+        
+        # Ensure Document has all required fields and save to shared store
+        processed_doc.setdefault("patient_id", None)
+        processed_doc.setdefault("chunks", [])
+        processed_doc.setdefault("created_at", datetime.utcnow().isoformat())
+        processed_doc.setdefault("status", "created")
+        processed_doc["metadata"]["size"] = processed_doc["metadata"].get("file_size", len(content))
+        documents_db[file_id] = processed_doc
         
         return {
             "file_id": file_id,
