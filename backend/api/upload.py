@@ -2,9 +2,9 @@
 File Upload API Endpoints
 """
 
-from fastapi import APIRouter, UploadFile, File, HTTPException, status
+from fastapi import APIRouter, UploadFile, File, HTTPException, status, Form
 from fastapi.responses import JSONResponse
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import os
 import uuid
 from datetime import datetime
@@ -21,7 +21,10 @@ MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-async def upload_file(file: UploadFile = File(...)) -> Dict[str, Any]:
+async def upload_file(
+    file: UploadFile = File(...),
+    patient_id: Optional[str] = Form(None),
+) -> Dict[str, Any]:
     """
     Upload a single clinical document for processing
     
@@ -59,7 +62,7 @@ async def upload_file(file: UploadFile = File(...)) -> Dict[str, Any]:
         processed_doc = await process_file(file_path, file.filename, file_id)
         
         # Ensure Document has all required fields and save to shared store
-        processed_doc.setdefault("patient_id", None)
+        processed_doc["patient_id"] = patient_id or processed_doc.get("patient_id")
         processed_doc.setdefault("chunks", [])
         processed_doc.setdefault("created_at", datetime.utcnow().isoformat())
         processed_doc.setdefault("status", "created")

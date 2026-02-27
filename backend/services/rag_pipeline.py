@@ -106,10 +106,10 @@ def get_embeddings_safe() -> HuggingFaceEmbeddings:
             }
         )
         test = embeddings.embed_query("test")
-        print(f"✅ GPU Embeddings: {config.EMBEDDING_MODEL} on {config.EMBEDDING_DEVICE}")
+        print(f"[OK] GPU Embeddings: {config.EMBEDDING_MODEL} on {config.EMBEDDING_DEVICE}")
         return embeddings
     except Exception as e:
-        print(f"⚠️  GPU failed, using CPU: {e}")
+        print(f"[WARNING] GPU failed, using CPU: {e}")
         return HuggingFaceEmbeddings(
             model_name=config.EMBEDDING_MODEL,
             model_kwargs={'device': 'cpu'},
@@ -137,7 +137,7 @@ def load_vectorstore(embeddings: HuggingFaceEmbeddings) -> Optional[Chroma]:
             embedding_function=embeddings,
             persist_directory=config.PERSIST_DIRECTORY,
         )
-        print(f"✅ Loaded ChromaDB with {vs._collection.count()} docs")
+        print(f"[OK] Loaded ChromaDB with {vs._collection.count()} docs")
         return vs
     except:
         return None
@@ -229,7 +229,7 @@ Generate JSON now:"""
 
 
 def query_with_structured_json(query: str, vectorstore: Chroma, llm: ChatCohere, k: int = 5) -> Dict[str, Any]:
-    print(f"\n🔍 Query: {query}")
+    print(f"\n[QUERY] Query: {query}")
     
     retrieved_docs = retrieve_documents(vectorstore, query, k)
     if not retrieved_docs:
@@ -301,7 +301,7 @@ def query_with_structured_json(query: str, vectorstore: Chroma, llm: ChatCohere,
 
 async def demo_pipeline():
     print("\n" + "="*50)
-    print("🚀 MediSync Hybrid RAG Pipeline")
+    print("[START] MediSync Hybrid RAG Pipeline")
     print("="*50)
     
     embeddings = get_embeddings_safe()
@@ -324,12 +324,12 @@ async def demo_pipeline():
     add_documents_to_store(vectorstore, chunks)
     
     result = query_with_structured_json("What medications is the patient on?", vectorstore, llm)
-    print(f"\n📊 Result:\n{json.dumps(result, indent=2)}")
+    print(f"\n[RESULT] Result:\n{json.dumps(result, indent=2)}")
 
 
 if __name__ == "__main__":
     import asyncio
     if not config.COHERE_API_KEY:
-        print("⚠️  Set COHERE_API_KEY first!")
+        print("[WARNING] Set COHERE_API_KEY first!")
     else:
         asyncio.run(demo_pipeline())

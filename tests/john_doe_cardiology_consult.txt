@@ -1,0 +1,17 @@
+PATIENT: John Doe
+MRN: 89221
+DATE OF CONSULT: October 25, 2025
+ATTENDING: Dr. Sarah Chen, Cardiology
+
+ASSESSMENT:
+65-year-old male presenting with acute chest pain. ECG shows ST-segment depression in leads V3-V6. Troponin I is elevated at 2.4 ng/mL. 
+Diagnosis: Acute Non-ST Elevation Myocardial Infarction (NSTEMI) (ICD-10: I21.4).
+
+PLAN & MEDICATIONS:
+Patient was taken for cardiac catheterization which revealed 80% occlusion of the LAD. A drug-eluting stent was placed successfully.
+
+New Medications Started:
+1. Aspirin 81mg - Route: Oral - Frequency: Once daily
+2. Clopidogrel 75mg - Route: Oral - Frequency: Once daily
+3. Metoprolol Tartrate 25mg - Route: Oral - Frequency: Twice daily
+4. Atorvastatin 40mg - Route: Oral - Frequency: Once daily at bedtime

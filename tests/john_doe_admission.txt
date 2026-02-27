@@ -1,0 +1,20 @@
+PATIENT: John Doe
+DOB: 05/12/1958 (Age 65)
+MRN: 89221
+DATE OF ADMISSION: October 24, 2025
+
+CHIEF COMPLAINT:
+Patient presents to the emergency department with substernal chest pain radiating to the left jaw, accompanied by shortness of breath and diaphoresis that began 2 hours prior to arrival.
+
+VITALS ON ADMISSION:
+Blood Pressure: 140/90 mmHg
+Heart Rate: 88 bpm
+Temperature: 98.6 F
+SpO2: 94% on room air
+
+ALLERGIES:
+- Penicillin (Reaction: Severe hives and anaphylaxis)
+- Peanuts (Reaction: Mild rash)
+
+PAST MEDICAL HISTORY:
+Type 2 Diabetes Mellitus, Hypertension, Hyperlipidemia.

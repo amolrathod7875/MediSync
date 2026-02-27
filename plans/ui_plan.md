@@ -38,7 +38,7 @@ Transform the current MediSync dashboard into an enterprise-grade Hospital Dashb
 │  │  │ - Age         │  │  └─────────────────────────────────┘  ││
 │  │  │ - Complaint   │  │                                       ││
 │  │  │ - MRN         │  │  ┌─────────────────────────────────┐  ││
-│  │  └───────────────┘  │  │  Generate Button (✨)           │  ││
+│  │  └───────────────┘  │  │  Generate Button ([SPARKLES])           │  ││
 │  │                     │  └─────────────────────────────────┘  ││
 │  │  ┌───────────────┐  │                                       ││
 │  │  │ Vitals Grid   │  │  ┌─────────────────────────────────┐  ││
@@ -104,7 +104,7 @@ Transform the current MediSync dashboard into an enterprise-grade Hospital Dashb
   - Description: "Generate clinical documentation from patient records"
 - [ ] **Create** Generate Discharge Summary button
   - Primary variant with teal color
-  - Sparkles icon (✨) for visual appeal
+  - Sparkles icon ([SPARKLES]) for visual appeal
   - Loading state support
 - [ ] **Create** Summary Output Area
   - Use ScrollArea from shadcn/ui
@@ -216,17 +216,17 @@ Chest pain, onset 3 days prior to admission...
 
 ## Acceptance Criteria
 
-1. ✅ Page displays with full screen height (`h-screen`)
-2. ✅ Main content has `overflow-hidden` with scrollable internal panels
-3. ✅ Left panel is exactly 30% width on desktop
-4. ✅ Right panel takes remaining 70% width
-5. ✅ Patient card shows all specified information
-6. ✅ Vitals display with appropriate color coding
-7. ✅ Upload zone has dashed border and upload icon
-8. ✅ Generate button is prominent with sparkles icon
-9. ✅ Summary area uses ScrollArea component
-10. ✅ Layout collapses to single column on mobile (<768px)
-11. ✅ Color scheme uses slate/zinc grays with teal/blue accents
+1. [OK] Page displays with full screen height (`h-screen`)
+2. [OK] Main content has `overflow-hidden` with scrollable internal panels
+3. [OK] Left panel is exactly 30% width on desktop
+4. [OK] Right panel takes remaining 70% width
+5. [OK] Patient card shows all specified information
+6. [OK] Vitals display with appropriate color coding
+7. [OK] Upload zone has dashed border and upload icon
+8. [OK] Generate button is prominent with sparkles icon
+9. [OK] Summary area uses ScrollArea component
+10. [OK] Layout collapses to single column on mobile (<768px)
+11. [OK] Color scheme uses slate/zinc grays with teal/blue accents
 
 ---
 

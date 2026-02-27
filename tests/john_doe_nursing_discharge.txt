@@ -1,0 +1,12 @@
+PATIENT: John Doe
+MRN: 89221
+DATE: October 28, 2025
+
+NURSING DISCHARGE NOTES:
+Patient is stable for discharge to home. He has tolerated his new cardiac medications well with no adverse reactions. Blood pressure is well controlled at 118/75 this morning.
+
+FOLLOW-UP INSTRUCTIONS:
+- Patient must schedule a follow-up appointment with Dr. Chen in the Cardiology clinic in exactly 2 weeks.
+- Strict adherence to a low-sodium, heart-healthy cardiac diet.
+- No heavy lifting (greater than 10 lbs) for the next week.
+- Return to the ER immediately if chest pain returns or shortness of breath worsens.
